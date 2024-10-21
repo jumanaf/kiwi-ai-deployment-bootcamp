@@ -32,7 +32,7 @@ class RFStationPredictor(Predictor):
 
         logger.info("Model successfully loaded!")
 
-    def predict(self, instances: Dict[str, List[str]], order: List) -> Dict[str, Any]:
+    def predict(self, instances: Dict[str, List[str]]) -> Dict[str, Any]:
 
         # check if the input data is valid
         fsas = instances["FSA"]
@@ -79,7 +79,23 @@ class RFStationPredictor(Predictor):
         # merge features with input_df
         merged_input_df = input_df.merge(features_df, on=['FSA'], how='inner').drop_duplicates()
         merged_input_df.drop('FSA', axis=1, inplace=True)
-        
+
+        order = ['year',
+                'FSA_encoded',
+                'in_workplace',
+                'urban',
+                'avg_household_size',
+                'avg_income',
+                'total_priv_dwelling_households',
+                'total_house_households',
+                'total_condos',
+                'total_apartment_households',
+                'frac_employed',
+                'frac_unemployed',
+                'population',
+                'private_dwellings',
+                'month_num']
+                        
         merged_input_df = merged_input_df[order]
 
         # make predictions

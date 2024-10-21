@@ -4,15 +4,14 @@ import sys
 from google.cloud import aiplatform, bigquery
 from vertexai.resources.preview import ml_monitoring
 
-from constants import TFVARS, TFVARS_PATH, PROJECT_NUMBER, DOCKER_REPO_NAME, DOCKER_IMAGE_NAME
+from constants import TFVARS, TFVARS_PATH, DOCKER_REPO_NAME, DOCKER_IMAGE_NAME, PROJECT_NUMBER
 from utils import save_tfvars
 
 
 model_id = sys.argv[1] if len(sys.argv) > 1 else None
 model_version = sys.argv[2] if len(sys.argv) > 2 else "default"
 
-model_name = "bart-large-mnli"
-hf_task = "zero-shot-classification"
+model_name = "rf-charger-pred"
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 
@@ -30,11 +29,7 @@ else:
     model = aiplatform.Model.upload(
         display_name=model_name,
         artifact_uri=f"gs://{TFVARS['project']}-model/{model_name}",
-        serving_container_image_uri=f"{TFVARS['region']}-docker.pkg.dev/{TFVARS['project']}/{DOCKER_REPO_NAME}/{DOCKER_IMAGE_NAME}:latest",
-        serving_container_environment_variables={
-            "HF_TASK": hf_task,
-            "VERTEX_CPR_WEB_CONCURRENCY": 1,
-        },
+        serving_container_image_uri=f"{TFVARS['region']}-docker.pkg.dev/{TFVARS['project']}/{DOCKER_REPO_NAME}/{DOCKER_IMAGE_NAME}",
     )
 
 # Create BigQuery logging table if it doesn't exist
@@ -76,10 +71,10 @@ model_monitoring_schema = ml_monitoring.spec.ModelMonitoringSchema(
         ml_monitoring.spec.FieldSchema(name="data_feature", data_type="string"),
     ],
     ground_truth_fields=[
-        ml_monitoring.spec.FieldSchema(name="label", data_type="categorical"),
+        ml_monitoring.spec.FieldSchema(name="label", data_type="numeric"),
     ],
     prediction_fields=[
-        ml_monitoring.spec.FieldSchema(name="predicted_label", data_type="categorical"),
+        ml_monitoring.spec.FieldSchema(name="predicted_label", data_type="numeric"),
     ],
 )
 

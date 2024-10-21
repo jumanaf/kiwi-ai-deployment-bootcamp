@@ -14,34 +14,25 @@ first time.
 
 ### 1. Package the Model and Build the Docker Container
 
-First, on some location in your machine, clone the `bart-large-mnli` repo which contains
-the model from huggingface (it will take some time to download it):
+Package the model and build the Docker container:
 ```shell
-git clone https://huggingface.co/facebook/bart-large-mnli
-```
-
-The model predictor at [vertex/predictor/hf_predictor.py](vertex/predictor/hf_predictor.py)
-expects all model files to be in a `.tar.gz` package so it can unpack and build a prediction
-pipeline for it at load time. To make the package, run:
-```shell
-cd bart-large-mnli/
-tar zcvf model.tar.gz --exclude flax_model.msgpack --exclude pytorch_model.bin --exclude rust_model.ot *
+tar zcvf model.tar.gz 
 ```
 
 Create a bucket on Cloud Storage and upload the compressed model to it (make sure to match
 the project and region to the ones you have set up on the [`terraform.tfvars`](architectures/terraform.tfvars)
 file, including replacing `ai-deployment-bootcamp` with your project in the bucket name):
 ```shell
-gcloud storage buckets create gs://ai-deployment-bootcamp-model --location=us-central1 --project=ai-deployment-bootcamp
+gcloud storage buckets create gs://kiwi-external-pilot-model --location=us-east1 --project=kiwi-external-pilot
 gcloud config set storage/parallel_composite_upload_enabled True
-gcloud storage cp model.tar.gz gs://ai-deployment-bootcamp-model/bart-large-mnli/
+gcloud storage cp model.tar.gz gs://kiwi-external-pilot-model/rf-charger-pred/
 ```
 
 Configure docker on GCP with the commands below (make sure to match the project ID and region to
 the ones you have set up on the [`terraform.tfvars`](architectures/terraform.tfvars) file):
 ```shell
-gcloud artifacts repositories create ai-deployment-bootcamp-docker-repo --repository-format docker --location us-central1 --project ai-deployment-bootcamp
-gcloud auth configure-docker us-central1-docker.pkg.dev
+gcloud artifacts repositories create kiwi-deployment-bootcamp-docker-repo --repository-format docker --location us-east1 --project kiwi-external-pilot
+gcloud auth configure-docker us-east1-docker.pkg.dev
 ```
 
 Then, back on `/vertex`, run `build_and_push_image.py` (it will take a while to finish and requires
@@ -60,7 +51,7 @@ INFO: #3 ERROR: error getting credentials - err: exec: "docker-credential-deskto
 
 ***NOTE 2:*** Alternatively, if the image is already built, you can just push it with:
 ```shell
-docker push us-central1-docker.pkg.dev/ai-deployment-bootcamp/ai-deployment-bootcamp-docker-repo/ai-deployment-bootcamp-inferencer:latest
+docker push us-central1-docker.pkg.dev/kiwi-charge-t1/kiwi-deployment-bootcamp-docker-repo/kiwi-deployment-bootcamp-rf-station-predictor:latest
 ```
 
 ### 2. Deploy the Model to an Endpoint
@@ -80,11 +71,6 @@ At the end, it will output the endpoint ID. It will automatically update the end
 and the model name in the `architectures/terraform.tfvars` file so the rest of the
 pipeline can use it.
 
-To test if the endpoint is up and running, run the test script with the test input data
-for this model and the endpoint ID:
-```shell
-python -m test_endpoint "inputs/bart-mnli.json" 4843021065888202752
-```
 
 ## Update the Model Version
 
