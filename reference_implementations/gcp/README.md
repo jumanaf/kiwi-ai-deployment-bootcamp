@@ -18,7 +18,7 @@ Make sure you have an account with GCP and are authenticated in the CLI by runni
 gcloud init
 gcloud auth login
 gcloud auth application-default login
-gcloud config set project ai-deployment-bootcamp
+gcloud config set project kiwi-external-pilot
 ```
 
 Next, go into the `vertex` folder, create a virtual environment and install the project requirements:

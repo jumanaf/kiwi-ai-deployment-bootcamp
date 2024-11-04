@@ -2,7 +2,9 @@ import logging
 from google.cloud.aiplatform.prediction import LocalModel
 from predictor.predictor import RFStationPredictor
 from constants import TFVARS, DOCKER_REPO_NAME, DOCKER_IMAGE_NAME
+import os
 
+os.environ["DOCKER_DEFAULT_PLATFORM"] = "linux/amd64"
 # This file builds and pushes the Docker image for the custom predictor to the Google Cloud Registry, and 
 # primarily relies on the vertex/predictor/predictor.py file to load in the model
 # and create the custom predictor.

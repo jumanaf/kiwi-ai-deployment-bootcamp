@@ -31,10 +31,9 @@ gcloud storage cp model.tar.gz gs://kiwi-external-pilot-model/rf-charger-pred/
 Configure docker on GCP with the commands below (make sure to match the project ID and region to
 the ones you have set up on the [`terraform.tfvars`](architectures/terraform.tfvars) file):
 ```shell
-gcloud artifacts repositories create kiwi-deployment-bootcamp-docker-repo --repository-format docker --location us-east1 --project kiwi-external-pilot
+gcloud artifacts repositories create kiwi-rf-charger-pred-v1-docker-repo --repository-format docker --location us-east1 --project kiwi-external-pilot
 gcloud auth configure-docker us-east1-docker.pkg.dev
 ```
-
 Then, back on `/vertex`, run `build_and_push_image.py` (it will take a while to finish and requires
 Docker to be running). This will build a Docker image with the [vertex/predictor/hf_predictor.py](vertex/predictor/hf_predictor.py)
 file as the predictor code for the model. This Docker image will be specifically built to run on
